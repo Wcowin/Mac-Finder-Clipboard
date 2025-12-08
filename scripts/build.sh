@@ -238,7 +238,7 @@ do_release() {
     # 步骤 5: 生成 appcast 条目
     print_step "[5/6] 生成 appcast 条目..."
     local PUB_DATE=$(date -R)
-    local DOWNLOAD_URL="https://github.com/$GITHUB_REPO/releases/download/v${VERSION}/${ZIP_NAME}"
+    local DOWNLOAD_URL="https://github.com/$GITHUB_REPO/releases/download/${VERSION}/${ZIP_NAME}"
     
     local APPCAST_ITEM_FILE="$RELEASE_DIR/appcast_item_${VERSION}.xml"
     cat > "$APPCAST_ITEM_FILE" << EOF
