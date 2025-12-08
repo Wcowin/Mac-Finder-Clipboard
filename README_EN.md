@@ -2,7 +2,7 @@
 
 # FinderClip
 
-![256.png](https://i.imgant.com/v2/ftvuj3C.png)
+![256.png](https://i.imgant.com/v2/ftvuj3C.png)  
 <img src="https://img.shields.io/badge/macOS-12.0+-blue.svg" alt="macOS">
 <img src="https://img.shields.io/badge/Swift-5.9-orange.svg" alt="Swift">
 <img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License">
