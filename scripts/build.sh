@@ -235,40 +235,34 @@ do_release() {
         SIGNATURE="SIGNATURE_PLACEHOLDER"
     fi
     
-    # 步骤 5: 生成 appcast 条目
-    print_step "[5/6] 生成 appcast 条目..."
+    # 步骤 5: 自动更新 appcast.xml
+    print_step "[5/6] 更新 appcast.xml..."
     local PUB_DATE=$(date -R)
     local DOWNLOAD_URL="https://github.com/$GITHUB_REPO/releases/download/${VERSION}/${ZIP_NAME}"
+    local APPCAST_FILE="$PROJECT_DIR/appcast.xml"
     
-    local APPCAST_ITEM_FILE="$RELEASE_DIR/appcast_item_${VERSION}.xml"
-    cat > "$APPCAST_ITEM_FILE" << EOF
-    <item>
-      <title>版本 $VERSION</title>
-      <sparkle:version>$BUILD_NUMBER</sparkle:version>
-      <sparkle:shortVersionString>$VERSION</sparkle:shortVersionString>
-      <sparkle:minimumSystemVersion>12.0</sparkle:minimumSystemVersion>
-      <pubDate>$PUB_DATE</pubDate>
-      <description><![CDATA[
-        <style>
-          body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
-          h2 { color: #333; }
-          ul { padding-left: 20px; }
-          li { margin: 8px 0; }
-        </style>
-        <h2>FinderClip $VERSION</h2>
-        <p>更新内容：</p>
-        <ul>
-          <li>请在此处填写更新内容</li>
-        </ul>
-      ]]></description>
-      <enclosure 
-        url="$DOWNLOAD_URL"
-        sparkle:edSignature="$SIGNATURE"
-        length="$ZIP_SIZE"
-        type="application/octet-stream" />
-    </item>
+    # 生成新的 appcast.xml（新版本在前）
+    cat > "$APPCAST_FILE" << EOF
+<?xml version="1.0" standalone="yes"?>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+    <channel>
+        <title>FinderClip</title>
+        <item>
+            <title>$VERSION</title>
+            <pubDate>$PUB_DATE</pubDate>
+            <sparkle:version>$BUILD_NUMBER</sparkle:version>
+            <sparkle:shortVersionString>$VERSION</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.0</sparkle:minimumSystemVersion>
+            <enclosure url="$DOWNLOAD_URL" length="$ZIP_SIZE" type="application/octet-stream" sparkle:edSignature="$SIGNATURE"/>
+            <description><![CDATA[
+                <h2>FinderClip $VERSION</h2>
+                <p>更新内容请查看 GitHub Release</p>
+            ]]></description>
+        </item>
+    </channel>
+</rss>
 EOF
-    print_success "已保存: appcast_item_${VERSION}.xml"
+    print_success "appcast.xml 已更新"
     
     # 步骤 6: 输出发布信息
     print_step "[6/6] 完成"
@@ -279,24 +273,19 @@ EOF
     echo -e "  ${BOLD}版本:${NC}     $VERSION (Build $BUILD_NUMBER)"
     echo -e "  ${BOLD}发布包:${NC}   $ZIP_PATH"
     echo -e "  ${BOLD}大小:${NC}     $ZIP_SIZE bytes"
-    echo -e "  ${BOLD}Appcast:${NC}  $APPCAST_ITEM_FILE"
+    echo -e "  ${BOLD}签名:${NC}     ${SIGNATURE:0:20}..."
     echo ""
     echo -e "${YELLOW}下一步操作:${NC}"
     echo ""
-    echo "  1. 编辑更新说明:"
-    echo "     ${CYAN}open $APPCAST_ITEM_FILE${NC}"
+    echo "  1. 创建 GitHub Release 并上传 ZIP:"
+    echo "     ${CYAN}https://github.com/$GITHUB_REPO/releases/new${NC}"
+    echo "     Tag: ${CYAN}${VERSION}${NC}"
+    echo "     上传: ${CYAN}$ZIP_PATH${NC}"
     echo ""
-    echo "  2. 将条目添加到 appcast.xml"
-    echo ""
-    echo "  3. 创建 Git Tag 并推送:"
-    echo "     ${CYAN}git tag v${VERSION}${NC}"
-    echo "     ${CYAN}git push origin v${VERSION}${NC}"
-    echo ""
-    echo "  4. 上传 ZIP 到 GitHub Release:"
-    echo "     ${CYAN}$ZIP_PATH${NC}"
-    echo ""
-    echo "  5. 提交 appcast.xml 更新:"
-    echo "     ${CYAN}git add appcast.xml && git commit -m \"Release v${VERSION}\" && git push${NC}"
+    echo "  2. 提交并推送更新:"
+    echo "     ${CYAN}git add .${NC}"
+    echo "     ${CYAN}git commit -m \"Release v${VERSION}\"${NC}"
+    echo "     ${CYAN}git push${NC}"
     echo ""
 }
 

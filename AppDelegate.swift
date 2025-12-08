@@ -193,21 +193,69 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     @objc func showAbout() {
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0.0"
+        
         let alert = NSAlert()
         alert.messageText = "FinderClip"
-        alert.informativeText = """
-        版本 1.0.0
-        
-        为 Finder 提供直观的剪切粘贴体验
-        
-        ⌘X - 剪切文件
-        ⌘V - 移动文件
-        Esc - 取消剪切
-        
-        © 2025 Wcowin
-        """
         alert.alertStyle = .informational
         alert.addButton(withTitle: "确定")
+        
+        // 创建自定义视图以支持可点击链接
+        let contentView = NSView(frame: NSRect(x: 0, y: 0, width: 260, height: 160))
+        
+        // 版本号
+        let versionLabel = NSTextField(labelWithString: "版本 \(version)")
+        versionLabel.frame = NSRect(x: 0, y: 135, width: 260, height: 18)
+        versionLabel.alignment = .center
+        versionLabel.font = NSFont.systemFont(ofSize: 12)
+        versionLabel.textColor = .secondaryLabelColor
+        contentView.addSubview(versionLabel)
+        
+        // 描述
+        let descLabel = NSTextField(labelWithString: "为 Finder 提供直观的剪切粘贴体验")
+        descLabel.frame = NSRect(x: 0, y: 105, width: 260, height: 18)
+        descLabel.alignment = .center
+        descLabel.font = NSFont.systemFont(ofSize: 12)
+        contentView.addSubview(descLabel)
+        
+        // 快捷键
+        let shortcutsLabel = NSTextField(labelWithString: "⌘X - 剪切文件\n⌘V - 移动文件\nEsc - 取消剪切")
+        shortcutsLabel.frame = NSRect(x: 0, y: 45, width: 260, height: 50)
+        shortcutsLabel.alignment = .center
+        shortcutsLabel.font = NSFont.systemFont(ofSize: 11)
+        shortcutsLabel.textColor = .secondaryLabelColor
+        contentView.addSubview(shortcutsLabel)
+        
+        // 版权信息（可点击链接，居中显示）
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.alignment = .center
+        
+        let copyrightText = NSMutableAttributedString(
+            string: "© 2025 ",
+            attributes: [
+                .font: NSFont.systemFont(ofSize: 11),
+                .paragraphStyle: paragraphStyle
+            ]
+        )
+        let linkText = NSAttributedString(
+            string: "Wcowin",
+            attributes: [
+                .link: URL(string: "https://wcowin.work/")!,
+                .font: NSFont.systemFont(ofSize: 11),
+                .paragraphStyle: paragraphStyle
+            ]
+        )
+        copyrightText.append(linkText)
+        
+        let textView = NSTextView(frame: NSRect(x: 0, y: 5, width: 260, height: 20))
+        textView.textStorage?.setAttributedString(copyrightText)
+        textView.isEditable = false
+        textView.isSelectable = true
+        textView.drawsBackground = false
+        textView.alignment = .center
+        contentView.addSubview(textView)
+        
+        alert.accessoryView = contentView
         alert.runModal()
     }
     

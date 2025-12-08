@@ -4,21 +4,14 @@
         <title>FinderClip</title>
         <item>
             <title>1.0.1</title>
-            <pubDate>Tue, 09 Dec 2025 02:39:09 +0800</pubDate>
-            <sparkle:version>202512090238</sparkle:version>
+            <pubDate>Tue, 09 Dec 2025 03:26:54 +0800</pubDate>
+            <sparkle:version>202512090326</sparkle:version>
             <sparkle:shortVersionString>1.0.1</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>12.0</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/Wcowin/Mac-Finder-Clipboard/releases/download/1.0.1/FinderClip-1.0.1.zip" length="1771661" type="application/octet-stream" sparkle:edSignature="huC1ewydW7kiWGC3tVVdSmOgz8Onk3oSctjwpRa81OPDyg8ygyuNLvvfpiVymK0KviD3MB6ZMeNtdDzgwQlEDQ=="/>
+            <enclosure url="https://github.com/Wcowin/Mac-Finder-Clipboard/releases/download/1.0.1/FinderClip-1.0.1.zip" length="1906458" type="application/octet-stream" sparkle:edSignature="Gf2GSe2+eZteapBrEwTgo7EInPHz+pxKKLQzIKX6iL8RoBqgZAxrupP+V42SVdTDowuGi11T5TnZQdteBvRNDA=="/>
             <description><![CDATA[
                 <h2>FinderClip 1.0.1</h2>
-                <p>首个正式发布版本</p>
-                <ul>
-                    <li>在 Finder 中使用 Cmd+X 剪切文件</li>
-                    <li>使用 Cmd+V 移动文件</li>
-                    <li>精美的设置界面</li>
-                    <li>支持开机自启</li>
-                    <li>内置自动更新</li>
-                </ul>
+                <p>更新内容请查看 GitHub Release</p>
             ]]></description>
         </item>
     </channel>

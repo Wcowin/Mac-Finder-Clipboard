@@ -156,21 +156,43 @@ class SettingsWindowController: NSWindowController {
             accessibilityStatusView?.layer?.backgroundColor = NSColor.systemGreen.withAlphaComponent(0.15).cgColor
             accessibilityIcon?.image = NSImage(systemSymbolName: "checkmark.shield.fill", accessibilityDescription: nil)
             accessibilityIcon?.contentTintColor = .systemGreen
-            accessibilityLabel?.stringValue = "辅助功能权限已授予"
+            accessibilityLabel?.stringValue = "已就绪"
             accessibilityLabel?.textColor = .systemGreen
+            
+            // 隐藏按钮
+            if let button = accessibilityStatusView?.subviews.compactMap({ $0 as? NSButton }).first {
+                button.isHidden = true
+            }
         } else {
             accessibilityStatusView?.layer?.backgroundColor = NSColor.systemOrange.withAlphaComponent(0.15).cgColor
             accessibilityIcon?.image = NSImage(systemSymbolName: "exclamationmark.shield.fill", accessibilityDescription: nil)
             accessibilityIcon?.contentTintColor = .systemOrange
             accessibilityLabel?.stringValue = "需要辅助功能权限"
             accessibilityLabel?.textColor = .systemOrange
+            
+            // 显示按钮
+            if let button = accessibilityStatusView?.subviews.compactMap({ $0 as? NSButton }).first {
+                button.isHidden = false
+            }
         }
     }
     
     @objc private func openAccessibilitySettings() {
-        let url = "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility"
-        if let settingsURL = URL(string: url) {
-            NSWorkspace.shared.open(settingsURL)
+        // 使用系统原生弹窗请求权限
+        let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue(): true] as CFDictionary
+        AXIsProcessTrustedWithOptions(options)
+        
+        // 启动定时器检查权限状态变化
+        Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] timer in
+            let hasPermission = AXIsProcessTrusted()
+            if hasPermission {
+                timer.invalidate()
+                DispatchQueue.main.async {
+                    self?.updateAccessibilityUI()
+                    // 通知其他组件
+                    NotificationCenter.default.post(name: .accessibilityStatusChanged, object: true)
+                }
+            }
         }
     }
     
@@ -201,8 +223,9 @@ class SettingsWindowController: NSWindowController {
         subtitleLabel.textColor = .secondaryLabelColor
         view.addSubview(subtitleLabel)
         
-        // 版本号
-        let versionLabel = NSTextField(labelWithString: "v1.0.0")
+        // 版本号（动态读取）
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0.0"
+        let versionLabel = NSTextField(labelWithString: "v\(version)")
         versionLabel.translatesAutoresizingMaskIntoConstraints = false
         versionLabel.font = NSFont.monospacedSystemFont(ofSize: 10, weight: .regular)
         versionLabel.textColor = .tertiaryLabelColor

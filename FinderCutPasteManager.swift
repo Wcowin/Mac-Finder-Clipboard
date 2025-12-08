@@ -255,17 +255,10 @@ class FinderCutPasteManager {
     }
     
     private func showPermissionAlert() {
+        // 使用系统原生弹窗请求权限（不再显示自定义弹窗）
         DispatchQueue.main.async {
-            let alert = NSAlert()
-            alert.messageText = "需要辅助功能权限"
-            alert.informativeText = "FinderClip 需要辅助功能权限才能拦截键盘事件。\n\n请在系统设置中授予权限。"
-            alert.alertStyle = .warning
-            alert.addButton(withTitle: "打开系统设置")
-            alert.addButton(withTitle: "取消")
-            
-            if alert.runModal() == .alertFirstButtonReturn {
-                self.openSystemPreferences()
-            }
+            let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue(): true] as CFDictionary
+            AXIsProcessTrustedWithOptions(options)
         }
     }
     
