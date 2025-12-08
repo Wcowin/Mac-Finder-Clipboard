@@ -18,7 +18,7 @@ build/
 xcuserdata/
 *.xccheckout
 *.moved-aside
-DerivedData
+DerivedData/
 *.hmap
 *.ipa
 *.xcuserstate
@@ -30,15 +30,12 @@ DerivedData
 
 # Icon generation temp files
 AppIcon.iconset/
-generate_icon
-generate_icon.swift
 
 # Swift Package Manager
 .build/
 Packages/
 Package.pins
 Package.resolved
-*.xcodeproj
 
 # CocoaPods
 Pods/
@@ -46,8 +43,14 @@ Pods/
 # Carthage
 Carthage/Build/
 
-# fastlane
-fastlane/report.xml
-fastlane/Preview.html
-fastlane/screenshots/**/*.png
-fastlane/test_output
+# Temp files
+*.jpeg
+
+# Build outputs (keep releases/ for reference)
+build/
+releases/*.zip
+
+# Private keys (NEVER commit!)
+*.pem
+*_private_key*
+tools/sparkle/keys/private.ed25519

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>FinderClip Updates</title>
+    <link>https://raw.githubusercontent.com/Wcowin/Mac-Finder-Clipboard/main/appcast.xml</link>
+    <description>FinderClip 更新日志 / Update Feed</description>
+    <language>zh-cn</language>
+    
+    <!-- 
+    ============================================================
+    发布新版本时，在此处添加新的 <item> 条目
+    使用 ./build.sh --release <版本号> 自动生成
+    ============================================================
+    -->
+    
+    <item>
+      <title>版本 1.0.1</title>
+      <sparkle:version>202512090238</sparkle:version>
+      <sparkle:shortVersionString>1.0.1</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>12.0</sparkle:minimumSystemVersion>
+      <pubDate>Tue, 09 Dec 2025 02:39:09 +0800</pubDate>
+      <description><![CDATA[
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+          h2 { color: #333; }
+          ul { padding-left: 20px; }
+          li { margin: 8px 0; }
+        </style>
+        <h2>🎉 FinderClip 1.0.1</h2>
+        <p>首个正式发布版本！</p>
+        <h3>✨ 功能特点</h3>
+        <ul>
+          <li>✂️ <b>真正的剪切</b> - 在 Finder 中使用 ⌘X 剪切文件</li>
+          <li>📋 <b>智能粘贴</b> - 使用 ⌘V 移动文件到目标位置</li>
+          <li>🎯 <b>场景识别</b> - 自动区分文件选择和文本编辑状态</li>
+          <li>🔔 <b>可视化反馈</b> - 剪切/粘贴操作提供清晰的通知提示</li>
+          <li>⏱️ <b>超时保护</b> - 可自定义超时时间（1-30分钟）</li>
+          <li>⚙️ <b>设置界面</b> - 精美的毛玻璃偏好设置面板</li>
+          <li>🚀 <b>开机自启</b> - 支持开机自动启动</li>
+          <li>🔄 <b>自动更新</b> - 内置 Sparkle 自动更新</li>
+        </ul>
+      ]]></description>
+      <enclosure 
+        url="https://github.com/Wcowin/Mac-Finder-Clipboard/releases/download/v1.0.1/FinderClip-1.0.1.zip"
+        sparkle:edSignature="huC1ewydW7kiWGC3tVVdSmOgz8Onk3oSctjwpRa81OPDyg8ygyuNLvvfpiVymK0KviD3MB6ZMeNtdDzgwQlEDQ=="
+        length="1771661"
+        type="application/octet-stream" />
+    </item>
+    
+    <item>
+      <title>版本 1.0.0</title>
+      <sparkle:version>1</sparkle:version>
+      <sparkle:shortVersionString>1.0.0</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>12.0</sparkle:minimumSystemVersion>
+      <pubDate>Mon, 09 Dec 2024 00:00:00 +0800</pubDate>
+      <description><![CDATA[
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+          h2 { color: #333; }
+          ul { padding-left: 20px; }
+          li { margin: 8px 0; }
+        </style>
+        <h2>🎉 FinderClip 1.0.0 - 首次发布</h2>
+        <p>为 macOS Finder 带来真正的剪切粘贴体验！</p>
+        <h3>✨ 功能特点</h3>
+        <ul>
+          <li>✂️ <b>真正的剪切</b> - 在 Finder 中使用 ⌘X 剪切文件</li>
+          <li>📋 <b>智能粘贴</b> - 使用 ⌘V 移动文件到目标位置</li>
+          <li>🎯 <b>场景识别</b> - 自动区分文件选择和文本编辑状态</li>
+          <li>🔔 <b>可视化反馈</b> - 剪切/粘贴操作提供清晰的通知提示</li>
+          <li>⏱️ <b>超时保护</b> - 可自定义超时时间（1-30分钟）</li>
+          <li>⚙️ <b>设置界面</b> - 精美的毛玻璃偏好设置面板</li>
+          <li>🚀 <b>开机自启</b> - 支持开机自动启动</li>
+          <li>🔄 <b>自动更新</b> - 内置 Sparkle 自动更新</li>
+        </ul>
+      ]]></description>
+      <!-- 
+      首次发布时取消注释并填写：
+      <enclosure 
+        url="https://github.com/Wcowin/Mac-Finder-Clipboard/releases/download/v1.0.0/FinderClip-1.0.0.zip"
+        sparkle:edSignature="运行 sign_update 获取签名"
+        length="文件大小（字节）"
+        type="application/octet-stream" />
+      -->
+    </item>
+    
+  </channel>
+</rss>

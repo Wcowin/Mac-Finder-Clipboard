@@ -1,7 +1,7 @@
 <div align="center">
 
 # FinderClip
-
+![1024.png](https://i.imgant.com/v2/ByUJbb9.png)
 <img src="https://img.shields.io/badge/macOS-12.0+-blue.svg" alt="macOS">
 <img src="https://img.shields.io/badge/Swift-5.9-orange.svg" alt="Swift">
 <img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License">
@@ -26,9 +26,11 @@ FinderClip 是一个轻量级的 macOS 菜单栏应用，让你可以在 Finder 
 | 📋 **智能粘贴** | 使用 ⌘V 移动文件到目标位置 |
 | 🎯 **场景识别** | 自动区分文件选择和文本编辑状态 |
 | 🔔 **可视化反馈** | 剪切/粘贴操作提供清晰的通知提示 |
-| ⏱️ **超时保护** | 剪切状态 5 分钟自动清除 |
+| ⏱️ **超时保护** | 剪切超时时间可自定义（1-30分钟） |
 | ⌨️ **快捷取消** | 按 Esc 取消剪切操作 |
 | 🚀 **开机自启** | 支持开机自动启动 |
+| ⚙️ **设置界面** | 精美的偏好设置面板 |
+| 🔄 **自动更新** | 内置 Sparkle 自动更新 |
 
 ## 📖 使用方法
 
@@ -40,11 +42,7 @@ FinderClip 是一个轻量级的 macOS 菜单栏应用，让你可以在 Finder 
 3. Esc - 按 Esc 键取消剪切状态
 ```
 
-### 演示
 
-<div align="center">
-  <img src="docs/demo.gif" alt="演示" width="600">
-</div>
 
 ## 🚀 快速开始
 
@@ -55,27 +53,32 @@ FinderClip 是一个轻量级的 macOS 菜单栏应用，让你可以在 Finder 
 
 ### 从源码构建
 
+**方式一：使用 Xcode（推荐）**
 ```bash
-# 克隆仓库
+git clone https://github.com/Wcowin/Mac-Finder-Clipboard.git
+cd Mac-Finder-Clipboard
+open FinderClip.xcodeproj
+# 在 Xcode 中按 ⌘R 运行
+```
+
+**方式二：命令行构建**
+```bash
 git clone https://github.com/Wcowin/Mac-Finder-Clipboard.git
 cd Mac-Finder-Clipboard
 
-# 生成应用图标（首次构建）
-./create_icon.sh
+# 构建并运行
+./build.sh --run
 
-# 构建应用
-./build_app.sh
-
-# 运行应用
-open FinderClip.app
+# 或仅构建
+./build.sh
 ```
 
 ### 首次使用
 
 1. 运行应用后，菜单栏会出现剪刀图标 ✂️
-2. 点击图标 → "打开辅助功能设置"
-3. 在系统设置中勾选 FinderClip
-4. 完成！现在可以在 Finder 中使用 ⌘X 剪切文件了
+2. 如果显示 "⚠ 点击授予权限..."，点击它打开系统设置
+3. 在辅助功能列表中找到并勾选 FinderClip
+4. 返回应用，菜单栏显示 "✓ 已就绪" 即可使用
 
 ## 🛠 技术实现
 
@@ -113,19 +116,44 @@ Mac-Finder-Clipboard/
 ├── main.swift                    # 应用入口
 ├── AppDelegate.swift             # 应用代理和菜单栏
 ├── FinderCutPasteManager.swift   # 核心功能实现
+├── SettingsManager.swift         # 设置管理
+├── SettingsWindowController.swift # 设置界面
+├── Assets.xcassets/              # 应用图标资源
+├── FinderClip.xcodeproj/         # Xcode 项目
 ├── Info.plist                    # 应用配置
 ├── FinderClip.entitlements       # 权限配置
-├── build_app.sh                  # 构建脚本
-├── create_icon.sh                # 图标生成脚本
-├── AppIcon.icns                  # 应用图标
+├── appcast.xml                   # Sparkle 更新源
+├── build.sh                      # 构建脚本入口
+├── scripts/
+│   └── build.sh                  # 完整构建/发布脚本
+├── tools/sparkle/                # Sparkle 签名工具
 ├── LICENSE                       # MIT 许可证
-├── .gitignore                    # Git 忽略文件
 └── README.md                     # 说明文档
+```
+
+## 🚀 构建命令
+
+```bash
+./build.sh              # 构建 Debug 版本
+./build.sh --run        # 构建并运行
+./build.sh --release    # 构建 Release 版本
+./build.sh --release 1.0.1  # 发布 v1.0.1
+./build.sh --clean      # 清理构建
+./build.sh --status     # 查看项目状态
+./build.sh --help       # 显示帮助
 ```
 
 ## 🤝 贡献
 
-欢迎提交 Issue 和 Pull Request！
+欢迎参与项目开发！
+
+1. Fork 本仓库
+2. 创建你的特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交你的更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 打开一个 Pull Request
+
+也欢迎提交 [Issue](https://github.com/Wcowin/Mac-Finder-Clipboard/issues) 报告 Bug 或建议新功能！
 
 ## 📄 许可证
 

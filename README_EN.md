@@ -2,6 +2,7 @@
 
 # FinderClip
 
+![1024.png](https://i.imgant.com/v2/ByUJbb9.png)
 <img src="https://img.shields.io/badge/macOS-12.0+-blue.svg" alt="macOS">
 <img src="https://img.shields.io/badge/Swift-5.9-orange.svg" alt="Swift">
 <img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License">
@@ -26,9 +27,11 @@ FinderClip is a lightweight macOS menu bar app that brings the familiar **⌘X**
 | 📋 **Smart Paste** | Use ⌘V to move files to destination |
 | 🎯 **Context Detection** | Auto-detect file selection vs text editing |
 | 🔔 **Visual Feedback** | Clear notifications for cut/paste operations |
-| ⏱️ **Timeout Protection** | Auto-clear cut state after 5 minutes |
+| ⏱️ **Timeout Protection** | Customizable timeout (1-30 minutes) |
 | ⌨️ **Quick Cancel** | Press Esc to cancel cut operation |
 | 🚀 **Launch at Login** | Support for auto-start on boot |
+| ⚙️ **Settings Panel** | Beautiful preferences interface |
+| 🔄 **Auto Update** | Built-in Sparkle auto-update |
 
 ## 📖 Usage
 
@@ -40,12 +43,6 @@ FinderClip is a lightweight macOS menu bar app that brings the familiar **⌘X**
 3. Esc - Press Esc to cancel cut state
 ```
 
-### Demo
-
-<div align="center">
-  <img src="docs/demo.gif" alt="Demo" width="600">
-</div>
-
 ## 🚀 Quick Start
 
 ### Requirements
@@ -55,27 +52,32 @@ FinderClip is a lightweight macOS menu bar app that brings the familiar **⌘X**
 
 ### Build from Source
 
+**Option 1: Using Xcode (Recommended)**
 ```bash
-# Clone the repository
+git clone https://github.com/Wcowin/Mac-Finder-Clipboard.git
+cd Mac-Finder-Clipboard
+open FinderClip.xcodeproj
+# Press ⌘R in Xcode to run
+```
+
+**Option 2: Command Line**
+```bash
 git clone https://github.com/Wcowin/Mac-Finder-Clipboard.git
 cd Mac-Finder-Clipboard
 
-# Generate app icon (first time only)
-./create_icon.sh
+# Build and run
+./build.sh --run
 
-# Build the app
-./build_app.sh
-
-# Run the app
-open FinderClip.app
+# Or just build
+./build.sh
 ```
 
 ### First Time Setup
 
 1. After running, a scissors icon ✂️ will appear in the menu bar
-2. Click the icon → "Open Accessibility Settings"
-3. Check FinderClip in System Settings
-4. Done! Now you can use ⌘X to cut files in Finder
+2. If it shows "⚠ Click to grant permission...", click to open System Settings
+3. Find and check FinderClip in the Accessibility list
+4. Return to the app, menu bar shows "✓ Ready" - you're all set!
 
 ## 🛠 Technical Implementation
 
@@ -113,19 +115,44 @@ Mac-Finder-Clipboard/
 ├── main.swift                    # App entry point
 ├── AppDelegate.swift             # App delegate and menu bar
 ├── FinderCutPasteManager.swift   # Core functionality
+├── SettingsManager.swift         # Settings management
+├── SettingsWindowController.swift # Settings UI
+├── Assets.xcassets/              # App icon assets
+├── FinderClip.xcodeproj/         # Xcode project
 ├── Info.plist                    # App configuration
 ├── FinderClip.entitlements       # Permissions
-├── build_app.sh                  # Build script
-├── create_icon.sh                # Icon generation script
-├── AppIcon.icns                  # App icon
+├── appcast.xml                   # Sparkle update feed
+├── build.sh                      # Build script entry
+├── scripts/
+│   └── build.sh                  # Full build/release script
+├── tools/sparkle/                # Sparkle signing tools
 ├── LICENSE                       # MIT License
-├── .gitignore                    # Git ignore file
 └── README.md                     # Documentation
+```
+
+## 🚀 Build Commands
+
+```bash
+./build.sh              # Build Debug version
+./build.sh --run        # Build and run
+./build.sh --release    # Build Release version
+./build.sh --release 1.0.1  # Release v1.0.1
+./build.sh --clean      # Clean build files
+./build.sh --status     # Show project status
+./build.sh --help       # Show help
 ```
 
 ## 🤝 Contributing
 
-Issues and Pull Requests are welcome!
+Contributions are welcome!
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+Feel free to open an [Issue](https://github.com/Wcowin/Mac-Finder-Clipboard/issues) to report bugs or suggest new features!
 
 ## 📄 License
 

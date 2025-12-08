@@ -7,10 +7,17 @@
 
 import Cocoa
 import ServiceManagement
+import Sparkle
 
 class AppDelegate: NSObject, NSApplicationDelegate {
+    static var shared: AppDelegate?
+    
     var statusItem: NSStatusItem?
     var finderCutManager: FinderCutPasteManager?
+    var accessibilityMenuItem: NSMenuItem?
+    
+    // Sparkle 更新控制器
+    let updaterController = SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
     
     // 开机自启状态
     var launchAtLogin: Bool {
@@ -38,6 +45,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     func applicationDidFinishLaunching(_ notification: Notification) {
         print("[FinderClip] 应用启动")
+        AppDelegate.shared = self
         
         // 创建菜单栏图标
         setupMenuBar()
@@ -48,7 +56,46 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // 默认启用功能
         Task { @MainActor in
             self.finderCutManager?.isEnabled = true
+            self.updateAccessibilityStatus()
         }
+        
+        // 定时检查权限状态
+        Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
+            DispatchQueue.main.async {
+                self?.updateAccessibilityStatus()
+            }
+        }
+    }
+    
+    // 检查辅助功能权限
+    var isAccessibilityEnabled: Bool {
+        AXIsProcessTrusted()
+    }
+    
+    func updateAccessibilityStatus() {
+        let hasPermission = isAccessibilityEnabled
+        
+        // 更新菜单栏图标
+        if let button = statusItem?.button {
+            if hasPermission {
+                button.image = NSImage(systemSymbolName: "scissors", accessibilityDescription: "FinderClip")
+            } else {
+                button.image = NSImage(systemSymbolName: "exclamationmark.triangle.fill", accessibilityDescription: "需要权限")
+            }
+            button.image?.isTemplate = true
+        }
+        
+        // 更新权限菜单项
+        if hasPermission {
+            accessibilityMenuItem?.title = "✓ 已就绪"
+            accessibilityMenuItem?.isEnabled = false
+        } else {
+            accessibilityMenuItem?.title = "⚠ 点击授予权限..."
+            accessibilityMenuItem?.isEnabled = true
+        }
+        
+        // 发送通知给设置界面
+        NotificationCenter.default.post(name: .accessibilityStatusChanged, object: hasPermission)
     }
     
     func setupMenuBar() {
@@ -61,10 +108,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         let menu = NSMenu()
         
-        // 状态显示
-        let statusMenuItem = NSMenuItem(title: "FinderClip - 已启用", action: nil, keyEquivalent: "")
-        statusMenuItem.isEnabled = false
-        menu.addItem(statusMenuItem)
+        // 权限状态（可点击）
+        accessibilityMenuItem = NSMenuItem(
+            title: "检查权限中...",
+            action: #selector(openAccessibilitySettings),
+            keyEquivalent: ""
+        )
+        accessibilityMenuItem?.target = self
+        menu.addItem(accessibilityMenuItem!)
         
         menu.addItem(NSMenuItem.separator())
         
@@ -76,27 +127,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         helpMenu.addItem(NSMenuItem(title: "Esc - 取消剪切", action: nil, keyEquivalent: ""))
         helpItem.submenu = helpMenu
         menu.addItem(helpItem)
-        
-        menu.addItem(NSMenuItem.separator())
-        
-        // 开关功能
-        let toggleItem = NSMenuItem(
-            title: "启用功能",
-            action: #selector(toggleFeature),
-            keyEquivalent: ""
-        )
-        toggleItem.target = self
-        toggleItem.state = .on
-        menu.addItem(toggleItem)
-        
-        menu.addItem(NSMenuItem.separator())
-        
-        // 打开辅助功能设置
-        menu.addItem(NSMenuItem(
-            title: "打开辅助功能设置",
-            action: #selector(openAccessibilitySettings),
-            keyEquivalent: ""
-        ))
         
         menu.addItem(NSMenuItem.separator())
         
@@ -112,12 +142,30 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         menu.addItem(NSMenuItem.separator())
         
+        // 设置
+        menu.addItem(NSMenuItem(
+            title: "设置...",
+            action: #selector(openSettings),
+            keyEquivalent: ","
+        ))
+        
+        menu.addItem(NSMenuItem.separator())
+        
+        // 检查更新
+        menu.addItem(NSMenuItem(
+            title: "检查更新...",
+            action: #selector(checkForUpdates),
+            keyEquivalent: ""
+        ))
+        
         // 关于
         menu.addItem(NSMenuItem(
             title: "关于 FinderClip",
             action: #selector(showAbout),
             keyEquivalent: ""
         ))
+        
+        menu.addItem(NSMenuItem.separator())
         
         // 退出
         menu.addItem(NSMenuItem(
@@ -135,12 +183,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         Task { @MainActor in
             self.finderCutManager?.isEnabled = isEnabled
-            
-            // 更新状态显示
-            if let menu = self.statusItem?.menu,
-               let statusItem = menu.items.first {
-                statusItem.title = isEnabled ? "FinderClip - 已启用" : "FinderClip - 已禁用"
-            }
         }
     }
     
@@ -172,6 +214,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @objc func toggleLaunchAtLogin(_ sender: NSMenuItem) {
         launchAtLogin = !launchAtLogin
         sender.state = launchAtLogin ? .on : .off
+    }
+    
+    @objc func openSettings() {
+        SettingsWindowController.show()
+    }
+    
+    @objc func checkForUpdates() {
+        updaterController.checkForUpdates(nil)
     }
     
     @objc func quit() {
