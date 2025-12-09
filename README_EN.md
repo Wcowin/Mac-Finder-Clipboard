@@ -66,10 +66,10 @@ git clone https://github.com/Wcowin/Mac-Finder-Clipboard.git
 cd Mac-Finder-Clipboard
 
 # Build and run
-./build.sh --run
+./scripts/build.sh --run
 
 # Or just build
-./build.sh
+./scripts/build.sh
 ```
 
 ### First Time Setup
@@ -133,13 +133,13 @@ Mac-Finder-Clipboard/
 ## 🚀 Build Commands
 
 ```bash
-./build.sh              # Build Debug version
-./build.sh --run        # Build and run
-./build.sh --release    # Build Release version
-./build.sh --release 1.0.1  # Release v1.0.1
-./build.sh --clean      # Clean build files
-./build.sh --status     # Show project status
-./build.sh --help       # Show help
+./scripts/build.sh              # Build Debug version
+./scripts/build.sh --run        # Build and run
+./scripts/build.sh --release    # Build Release version
+./scripts/build.sh --release 1.0.2  # Release v1.0.2
+./scripts/build.sh --clean      # Clean build files
+./scripts/build.sh --status     # Show project status
+./scripts/build.sh --help       # Show help
 ```
 
 ## 🤝 Contributing

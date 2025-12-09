@@ -67,10 +67,10 @@ git clone https://github.com/Wcowin/Mac-Finder-Clipboard.git
 cd Mac-Finder-Clipboard
 
 # 构建并运行
-./build.sh --run
+./scripts/build.sh --run
 
 # 或仅构建
-./build.sh
+./scripts/build.sh
 ```
 
 ### 首次使用
@@ -134,13 +134,13 @@ Mac-Finder-Clipboard/
 ## 🚀 构建命令
 
 ```bash
-./build.sh              # 构建 Debug 版本
-./build.sh --run        # 构建并运行
-./build.sh --release    # 构建 Release 版本
-./build.sh --release 1.0.1  # 发布 v1.0.1
-./build.sh --clean      # 清理构建
-./build.sh --status     # 查看项目状态
-./build.sh --help       # 显示帮助
+./scripts/build.sh              # 构建 Debug 版本
+./scripts/build.sh --run        # 构建并运行
+./scripts/build.sh --release    # 构建 Release 版本
+./scripts/build.sh --release 1.0.2  # 发布 v1.0.2
+./scripts/build.sh --clean      # 清理构建
+./scripts/build.sh --status     # 查看项目状态
+./scripts/build.sh --help       # 显示帮助
 ```
 
 ## 🤝 贡献
