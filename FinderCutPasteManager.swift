@@ -40,12 +40,62 @@ class FinderCutPasteManager {
     }
     
     private func setupPermissionObserver() {
+        // 监听应用激活
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(handleAppActivated),
             name: NSApplication.didBecomeActiveNotification,
             object: nil
         )
+        
+        // 监听权限状态变化（来自设置界面的授权）
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handlePermissionChanged),
+            name: .accessibilityStatusChanged,
+            object: nil
+        )
+        
+        // 监听系统辅助功能权限变化
+        DistributedNotificationCenter.default().addObserver(
+            self,
+            selector: #selector(handleSystemPermissionChanged),
+            name: NSNotification.Name("com.apple.accessibility.api"),
+            object: nil
+        )
+    }
+    
+    @objc private func handlePermissionChanged(_ notification: Notification) {
+        guard isEnabled else { return }
+        
+        let hasPermission = AXIsProcessTrusted()
+        print("[FinderClip] 收到权限变化通知，当前状态: \(hasPermission)")
+        
+        if hasPermission && eventTap == nil {
+            print("[FinderClip] 权限已授予，立即启动监听...")
+            Task { @MainActor in
+                self.startMonitoring()
+            }
+        }
+    }
+    
+    @objc private func handleSystemPermissionChanged(_ notification: Notification) {
+        guard isEnabled else { return }
+        
+        // 延迟检查，确保系统设置已生效
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+            guard let self = self else { return }
+            
+            let hasPermission = AXIsProcessTrusted()
+            print("[FinderClip] 系统权限变化，当前状态: \(hasPermission)")
+            
+            if hasPermission && self.eventTap == nil {
+                print("[FinderClip] 权限已授予，启动监听...")
+                Task { @MainActor in
+                    self.startMonitoring()
+                }
+            }
+        }
     }
     
     @objc private func handleAppActivated() {
@@ -152,7 +202,7 @@ class FinderCutPasteManager {
             isCutMode = true
             cutTimestamp = Date()
             
-            // 显示通知（异步）
+            // 显示通知
             Task { @MainActor in
                 self.showNotification("剪切模式", subtitle: "按 ⌘V 移动文件，按 Esc 取消")
             }
@@ -246,10 +296,6 @@ class FinderCutPasteManager {
         content.title = title
         content.subtitle = subtitle
         
-        if SettingsManager.shared.soundEnabled {
-            content.sound = .default
-        }
-        
         let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
         UNUserNotificationCenter.current().add(request)
     }
@@ -263,8 +309,12 @@ class FinderCutPasteManager {
     }
     
     func openSystemPreferences() {
-        let url = "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility"
+        // 先触发系统原生权限弹窗
+        let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue(): true] as CFDictionary
+        AXIsProcessTrustedWithOptions(options)
         
+        // 同时打开系统设置页面（方便用户手动勾选）
+        let url = "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility"
         if let settingsURL = URL(string: url) {
             NSWorkspace.shared.open(settingsURL)
         }

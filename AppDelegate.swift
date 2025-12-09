@@ -119,17 +119,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         menu.addItem(NSMenuItem.separator())
         
-        // 使用说明
-        let helpItem = NSMenuItem(title: "使用说明", action: nil, keyEquivalent: "")
-        let helpMenu = NSMenu()
-        helpMenu.addItem(NSMenuItem(title: "⌘X - 剪切文件", action: nil, keyEquivalent: ""))
-        helpMenu.addItem(NSMenuItem(title: "⌘V - 移动文件", action: nil, keyEquivalent: ""))
-        helpMenu.addItem(NSMenuItem(title: "Esc - 取消剪切", action: nil, keyEquivalent: ""))
-        helpItem.submenu = helpMenu
-        menu.addItem(helpItem)
-        
-        menu.addItem(NSMenuItem.separator())
-        
         // 开机自启
         let launchItem = NSMenuItem(
             title: "开机自动启动",
@@ -140,8 +129,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         launchItem.state = launchAtLogin ? .on : .off
         menu.addItem(launchItem)
         
-        menu.addItem(NSMenuItem.separator())
-        
         // 设置
         menu.addItem(NSMenuItem(
             title: "设置...",
@@ -151,21 +138,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         menu.addItem(NSMenuItem.separator())
         
-        // 检查更新
-        menu.addItem(NSMenuItem(
-            title: "检查更新...",
-            action: #selector(checkForUpdates),
-            keyEquivalent: ""
-        ))
-        
         // 关于
         menu.addItem(NSMenuItem(
             title: "关于 FinderClip",
             action: #selector(showAbout),
             keyEquivalent: ""
         ))
-        
-        menu.addItem(NSMenuItem.separator())
         
         // 退出
         menu.addItem(NSMenuItem(

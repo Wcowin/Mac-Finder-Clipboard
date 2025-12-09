@@ -13,15 +13,13 @@ class SettingsWindowController: NSWindowController {
     
     private var timeoutPopup: NSPopUpButton!
     private var notificationSwitch: NSSwitch!
-    private var soundSwitch: NSSwitch!
-    private var cutCountSwitch: NSSwitch!
     private var accessibilityStatusView: NSView?
     private var accessibilityLabel: NSTextField?
     private var accessibilityIcon: NSImageView?
     
     convenience init() {
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 420, height: 520),
+            contentRect: NSRect(x: 0, y: 0, width: 380, height: 420),
             styleMask: [.titled, .closable, .fullSizeContentView],
             backing: .buffered,
             defer: false
@@ -63,9 +61,9 @@ class SettingsWindowController: NSWindowController {
         // 主容器
         let container = NSStackView()
         container.orientation = .vertical
-        container.spacing = 16
+        container.spacing = 12
         container.translatesAutoresizingMaskIntoConstraints = false
-        container.edgeInsets = NSEdgeInsets(top: 24, left: 28, bottom: 24, right: 28)
+        container.edgeInsets = NSEdgeInsets(top: 20, left: 24, bottom: 20, right: 24)
         contentView.addSubview(container)
         
         NSLayoutConstraint.activate([
@@ -95,9 +93,9 @@ class SettingsWindowController: NSWindowController {
         let footerView = createFooterView()
         container.addArrangedSubview(footerView)
         
-        container.setCustomSpacing(12, after: headerView)
-        container.setCustomSpacing(12, after: settingsCard)
-        container.setCustomSpacing(12, after: accessibilityCard)
+        container.setCustomSpacing(16, after: headerView)
+        container.setCustomSpacing(10, after: settingsCard)
+        container.setCustomSpacing(10, after: accessibilityCard)
         
         // 初始化权限状态
         updateAccessibilityUI()
@@ -255,7 +253,7 @@ class SettingsWindowController: NSWindowController {
         let card = NSView()
         card.translatesAutoresizingMaskIntoConstraints = false
         card.wantsLayer = true
-        card.layer?.backgroundColor = NSColor.controlBackgroundColor.withAlphaComponent(0.6).cgColor
+        card.layer?.backgroundColor = NSColor.controlBackgroundColor.withAlphaComponent(0.4).cgColor
         card.layer?.cornerRadius = 12
         
         let stack = NSStackView()
@@ -277,10 +275,6 @@ class SettingsWindowController: NSWindowController {
         
         // 通知设置
         stack.addArrangedSubview(createNotificationSection())
-        stack.addArrangedSubview(createDivider())
-        
-        // 显示设置
-        stack.addArrangedSubview(createDisplaySection())
         
         return card
     }
@@ -290,7 +284,7 @@ class SettingsWindowController: NSWindowController {
         let container = NSView()
         container.translatesAutoresizingMaskIntoConstraints = false
         container.wantsLayer = true
-        container.layer?.backgroundColor = NSColor.controlAccentColor.withAlphaComponent(0.08).cgColor
+        container.layer?.backgroundColor = NSColor.controlBackgroundColor.withAlphaComponent(0.4).cgColor
         container.layer?.cornerRadius = 8
         container.heightAnchor.constraint(equalToConstant: 60).isActive = true
         
@@ -307,8 +301,8 @@ class SettingsWindowController: NSWindowController {
             stack.centerYAnchor.constraint(equalTo: container.centerYAnchor)
         ])
         
-        stack.addArrangedSubview(createShortcutItem(key: "⌘X", label: "剪切"))
-        stack.addArrangedSubview(createShortcutItem(key: "⌘V", label: "粘贴"))
+        stack.addArrangedSubview(createShortcutItem(key: "⌘+X", label: "剪切"))
+        stack.addArrangedSubview(createShortcutItem(key: "⌘+V", label: "粘贴移动"))
         stack.addArrangedSubview(createShortcutItem(key: "Esc", label: "取消"))
         
         return container
@@ -340,7 +334,7 @@ class SettingsWindowController: NSWindowController {
         container.translatesAutoresizingMaskIntoConstraints = false
         container.heightAnchor.constraint(equalToConstant: 48).isActive = true
         
-        let iconView = createSettingIcon("clock.fill", color: .systemOrange)
+        let iconView = createSettingIcon("clock", color: .secondaryLabelColor)
         container.addSubview(iconView)
         
         let titleLabel = NSTextField(labelWithString: "剪切超时")
@@ -374,27 +368,18 @@ class SettingsWindowController: NSWindowController {
     }
     
     private func createSettingIcon(_ name: String, color: NSColor) -> NSView {
-        let container = NSView()
-        container.translatesAutoresizingMaskIntoConstraints = false
-        container.wantsLayer = true
-        container.layer?.backgroundColor = color.withAlphaComponent(0.15).cgColor
-        container.layer?.cornerRadius = 6
-        
         let iconView = NSImageView()
         iconView.translatesAutoresizingMaskIntoConstraints = false
         iconView.image = NSImage(systemSymbolName: name, accessibilityDescription: nil)
         iconView.contentTintColor = color
-        iconView.symbolConfiguration = NSImage.SymbolConfiguration(pointSize: 12, weight: .medium)
-        container.addSubview(iconView)
+        iconView.symbolConfiguration = NSImage.SymbolConfiguration(pointSize: 15, weight: .regular)
         
         NSLayoutConstraint.activate([
-            container.widthAnchor.constraint(equalToConstant: 26),
-            container.heightAnchor.constraint(equalToConstant: 26),
-            iconView.centerXAnchor.constraint(equalTo: container.centerXAnchor),
-            iconView.centerYAnchor.constraint(equalTo: container.centerYAnchor)
+            iconView.widthAnchor.constraint(equalToConstant: 22),
+            iconView.heightAnchor.constraint(equalToConstant: 22)
         ])
         
-        return container
+        return iconView
     }
     
     // MARK: - Notification Section
@@ -406,8 +391,8 @@ class SettingsWindowController: NSWindowController {
         
         // 显示通知
         let notifRow = createIconSwitchRow(
-            icon: "bell.fill",
-            iconColor: .systemRed,
+            icon: "bell",
+            iconColor: .secondaryLabelColor,
             title: "显示通知"
         ) { [weak self] sw in
             self?.notificationSwitch = sw
@@ -416,35 +401,7 @@ class SettingsWindowController: NSWindowController {
         }
         stack.addArrangedSubview(notifRow)
         
-        stack.addArrangedSubview(createDivider())
-        
-        // 播放声音
-        let soundRow = createIconSwitchRow(
-            icon: "speaker.wave.2.fill",
-            iconColor: .systemPink,
-            title: "提示音"
-        ) { [weak self] sw in
-            self?.soundSwitch = sw
-            sw.target = self
-            sw.action = #selector(self?.soundChanged)
-        }
-        stack.addArrangedSubview(soundRow)
-        
         return stack
-    }
-    
-    // MARK: - Display Section
-    private func createDisplaySection() -> NSView {
-        let container = createIconSwitchRow(
-            icon: "number.circle.fill",
-            iconColor: .systemBlue,
-            title: "显示数量角标"
-        ) { [weak self] sw in
-            self?.cutCountSwitch = sw
-            sw.target = self
-            sw.action = #selector(self?.cutCountChanged)
-        }
-        return container
     }
     
     // MARK: - Helpers
@@ -494,7 +451,7 @@ class SettingsWindowController: NSWindowController {
         container.addSubview(line)
         
         NSLayoutConstraint.activate([
-            line.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 50),
+            line.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 46),
             line.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -14),
             line.heightAnchor.constraint(equalToConstant: 0.5),
             line.centerYAnchor.constraint(equalTo: container.centerYAnchor)
@@ -507,15 +464,7 @@ class SettingsWindowController: NSWindowController {
     private func createFooterView() -> NSView {
         let view = NSView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.heightAnchor.constraint(equalToConstant: 36).isActive = true
-        
-        let resetButton = NSButton(title: "恢复默认", target: self, action: #selector(resetToDefaults))
-        resetButton.translatesAutoresizingMaskIntoConstraints = false
-        resetButton.bezelStyle = .accessoryBarAction
-        resetButton.controlSize = .regular
-        resetButton.isBordered = false
-        resetButton.contentTintColor = .secondaryLabelColor
-        view.addSubview(resetButton)
+        view.heightAnchor.constraint(equalToConstant: 32).isActive = true
         
         let doneButton = NSButton(title: "完成", target: self, action: #selector(closeWindow))
         doneButton.translatesAutoresizingMaskIntoConstraints = false
@@ -525,12 +474,9 @@ class SettingsWindowController: NSWindowController {
         view.addSubview(doneButton)
         
         NSLayoutConstraint.activate([
-            resetButton.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            resetButton.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            
-            doneButton.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            doneButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             doneButton.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            doneButton.widthAnchor.constraint(equalToConstant: 70)
+            doneButton.widthAnchor.constraint(equalToConstant: 80)
         ])
         
         return view
@@ -550,8 +496,6 @@ class SettingsWindowController: NSWindowController {
         }
         
         notificationSwitch.state = settings.showNotifications ? .on : .off
-        soundSwitch.state = settings.soundEnabled ? .on : .off
-        cutCountSwitch.state = settings.showCutCount ? .on : .off
     }
     
     @objc private func timeoutChanged() {
@@ -564,22 +508,6 @@ class SettingsWindowController: NSWindowController {
     
     @objc private func notificationChanged() {
         SettingsManager.shared.showNotifications = notificationSwitch.state == .on
-    }
-    
-    @objc private func soundChanged() {
-        SettingsManager.shared.soundEnabled = soundSwitch.state == .on
-    }
-    
-    @objc private func cutCountChanged() {
-        SettingsManager.shared.showCutCount = cutCountSwitch.state == .on
-    }
-    
-    @objc private func resetToDefaults() {
-        SettingsManager.shared.cutTimeout = 300
-        SettingsManager.shared.showNotifications = true
-        SettingsManager.shared.showCutCount = true
-        SettingsManager.shared.soundEnabled = true
-        loadSettings()
     }
     
     @objc private func closeWindow() {

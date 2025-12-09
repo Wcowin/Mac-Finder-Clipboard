@@ -163,6 +163,17 @@ Mac-Finder-Clipboard/
 
 **Wcowin** - [GitHub](https://github.com/Wcowin)
 
+## 📝 更新日志
+
+### v1.0.2
+- 简化设置界面，更加简洁美观
+- 优化菜单栏布局
+- 授权后立即生效，无需重启应用
+- 移除冗余功能
+
+### v1.0.1
+- 首个公开发布版本
+
 ## ⭐ Star History
 
 如果这个项目对你有帮助，请给它一个 Star ⭐

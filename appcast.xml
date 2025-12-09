@@ -3,14 +3,14 @@
     <channel>
         <title>FinderClip</title>
         <item>
-            <title>1.0.1</title>
-            <pubDate>Tue, 09 Dec 2025 03:26:54 +0800</pubDate>
-            <sparkle:version>202512090326</sparkle:version>
-            <sparkle:shortVersionString>1.0.1</sparkle:shortVersionString>
+            <title>1.0.2</title>
+            <pubDate>Tue, 09 Dec 2025 18:04:14 +0800</pubDate>
+            <sparkle:version>202512091803</sparkle:version>
+            <sparkle:shortVersionString>1.0.2</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>12.0</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/Wcowin/Mac-Finder-Clipboard/releases/download/1.0.1/FinderClip-1.0.1.zip" length="1906458" type="application/octet-stream" sparkle:edSignature="Gf2GSe2+eZteapBrEwTgo7EInPHz+pxKKLQzIKX6iL8RoBqgZAxrupP+V42SVdTDowuGi11T5TnZQdteBvRNDA=="/>
+            <enclosure url="https://github.com/Wcowin/Mac-Finder-Clipboard/releases/download/1.0.2/FinderClip-1.0.2.zip" length="2194898" type="application/octet-stream" sparkle:edSignature="8r9UNno6NUUxEgAdVzeG9oNBfAeru+tqtRnq0ejhdfFXRRualX4jdQxQacFs5isy4Xs2CMt8zgY9/wiq5lVNAg=="/>
             <description><![CDATA[
-                <h2>FinderClip 1.0.1</h2>
+                <h2>FinderClip 1.0.2</h2>
                 <p>更新内容请查看 GitHub Release</p>
             ]]></description>
         </item>

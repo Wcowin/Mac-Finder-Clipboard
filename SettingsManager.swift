@@ -16,8 +16,6 @@ class SettingsManager {
     private enum Keys {
         static let cutTimeout = "cutTimeout"
         static let showNotifications = "showNotifications"
-        static let showCutCount = "showCutCount"
-        static let soundEnabled = "soundEnabled"
     }
     
     // 剪切超时时间（秒）
@@ -42,34 +40,6 @@ class SettingsManager {
         }
         set {
             defaults.set(newValue, forKey: Keys.showNotifications)
-            NotificationCenter.default.post(name: .settingsChanged, object: nil)
-        }
-    }
-    
-    // 是否在菜单栏显示剪切数量
-    var showCutCount: Bool {
-        get {
-            if defaults.object(forKey: Keys.showCutCount) == nil {
-                return true // 默认开启
-            }
-            return defaults.bool(forKey: Keys.showCutCount)
-        }
-        set {
-            defaults.set(newValue, forKey: Keys.showCutCount)
-            NotificationCenter.default.post(name: .settingsChanged, object: nil)
-        }
-    }
-    
-    // 是否启用声音
-    var soundEnabled: Bool {
-        get {
-            if defaults.object(forKey: Keys.soundEnabled) == nil {
-                return true // 默认开启
-            }
-            return defaults.bool(forKey: Keys.soundEnabled)
-        }
-        set {
-            defaults.set(newValue, forKey: Keys.soundEnabled)
             NotificationCenter.default.post(name: .settingsChanged, object: nil)
         }
     }
