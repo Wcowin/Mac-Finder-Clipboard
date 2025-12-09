@@ -187,7 +187,7 @@ Mac-Finder-Clipboard/
 
 ---
 
-PS：打个广告，如果你需要Mac的粘贴板管理工具，可以试试 [OneClip](https://github.com/Wcowin/OneClip)。  
+PS：打个广告，如果你需要Mac的粘贴板管理工具，可以试试 [OneClip](https://github.com/Wcowin/OneClip)。  OneClip已经内置了FinderClip的功能，更加全面，欢迎体验！
 
 ![screenshot_1.5x_postspark_2025-12-08_18-46-39.png](https://i.imgant.com/v2/RKyVhgF.png)  
 <!-- ![iShot 2025 12 02 20.20.57](https://image.66ghz.com/uploads/6936a835e8747_1765189685.jpeg) -->
