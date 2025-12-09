@@ -18,7 +18,7 @@
 
 FinderClip 是一个轻量级的 macOS 菜单栏应用，让你可以在 Finder 中使用熟悉的 **⌘X** 和 **⌘V** 快捷键来剪切和移动文件，就像在 Windows 中一样自然。  
 
-![iShot Pro 2025-12-09 18.34.49.png](https://i.imgant.com/v2/IMvZ3k0.png)
+
 
 ## 🎯 功能特点
 
