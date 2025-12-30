@@ -58,6 +58,7 @@ enum LocalizedKey {
     case menuCheckingPermission
     case menuLaunchAtLogin
     case menuSettings
+    case menuCheckForUpdates
     case menuAbout
     case menuQuit
     
@@ -111,6 +112,7 @@ enum LocalizedKey {
         case .menuCheckingPermission: return "检查权限中..."
         case .menuLaunchAtLogin: return "开机自动启动"
         case .menuSettings: return "设置..."
+        case .menuCheckForUpdates: return "检查更新..."
         case .menuAbout: return "关于 FinderClip"
         case .menuQuit: return "退出"
             
@@ -157,6 +159,7 @@ enum LocalizedKey {
         case .menuCheckingPermission: return "Checking permission..."
         case .menuLaunchAtLogin: return "Launch at Login"
         case .menuSettings: return "Settings..."
+        case .menuCheckForUpdates: return "Check for Updates..."
         case .menuAbout: return "About FinderClip"
         case .menuQuit: return "Quit"
             

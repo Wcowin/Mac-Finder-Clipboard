@@ -148,6 +148,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         menu.addItem(NSMenuItem.separator())
         
+        // 检查更新
+        menu.addItem(NSMenuItem(
+            title: loc.localized(.menuCheckForUpdates),
+            action: #selector(checkForUpdates),
+            keyEquivalent: ""
+        ))
+        
         // 关于
         menu.addItem(NSMenuItem(
             title: loc.localized(.menuAbout),
