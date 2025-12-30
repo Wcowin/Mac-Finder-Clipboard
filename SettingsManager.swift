@@ -16,6 +16,7 @@ class SettingsManager {
     private enum Keys {
         static let cutTimeout = "cutTimeout"
         static let showNotifications = "showNotifications"
+        static let language = "appLanguage"
     }
     
     // 剪切超时时间（秒）

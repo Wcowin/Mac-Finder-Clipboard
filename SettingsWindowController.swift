@@ -13,6 +13,7 @@ class SettingsWindowController: NSWindowController {
     
     private var timeoutPopup: NSPopUpButton!
     private var notificationSwitch: NSSwitch!
+    private var languagePopup: NSPopUpButton!
     private var accessibilityStatusView: NSView?
     private var accessibilityLabel: NSTextField?
     private var accessibilityIcon: NSImageView?
@@ -49,6 +50,14 @@ class SettingsWindowController: NSWindowController {
             name: .accessibilityStatusChanged,
             object: nil
         )
+        
+        // 监听语言变化
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(languageChanged),
+            name: .languageChanged,
+            object: nil
+        )
     }
     
     deinit {
@@ -57,6 +66,9 @@ class SettingsWindowController: NSWindowController {
     
     private func setupUI() {
         guard let window = window, let contentView = window.contentView else { return }
+        
+        // 清空现有内容
+        contentView.subviews.forEach { $0.removeFromSuperview() }
         
         // 主容器
         let container = NSStackView()
@@ -103,6 +115,7 @@ class SettingsWindowController: NSWindowController {
     
     // MARK: - Accessibility Status Card
     private func createAccessibilityStatusCard() -> NSView {
+        let loc = LocalizationManager.shared
         let card = NSView()
         card.translatesAutoresizingMaskIntoConstraints = false
         card.wantsLayer = true
@@ -118,14 +131,15 @@ class SettingsWindowController: NSWindowController {
         accessibilityIcon = iconView
         
         // 标签
-        let label = NSTextField(labelWithString: "检查权限中...")
+        let label = NSTextField(labelWithString: loc.localized(.menuCheckingPermission))
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = NSFont.systemFont(ofSize: 13, weight: .medium)
+        label.lineBreakMode = .byTruncatingTail
         card.addSubview(label)
         accessibilityLabel = label
         
         // 按钮
-        let actionButton = NSButton(title: "打开设置", target: self, action: #selector(openAccessibilitySettings))
+        let actionButton = NSButton(title: loc.localized(.settingsOpenSettings), target: self, action: #selector(openAccessibilitySettings))
         actionButton.translatesAutoresizingMaskIntoConstraints = false
         actionButton.bezelStyle = .rounded
         actionButton.controlSize = .small
@@ -139,22 +153,25 @@ class SettingsWindowController: NSWindowController {
             
             label.leadingAnchor.constraint(equalTo: iconView.trailingAnchor, constant: 10),
             label.centerYAnchor.constraint(equalTo: card.centerYAnchor),
+            label.trailingAnchor.constraint(lessThanOrEqualTo: actionButton.leadingAnchor, constant: -10),
             
             actionButton.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -14),
-            actionButton.centerYAnchor.constraint(equalTo: card.centerYAnchor)
+            actionButton.centerYAnchor.constraint(equalTo: card.centerYAnchor),
+            actionButton.widthAnchor.constraint(greaterThanOrEqualToConstant: 100)
         ])
         
         return card
     }
     
     @objc private func updateAccessibilityUI() {
+        let loc = LocalizationManager.shared
         let hasPermission = AXIsProcessTrusted()
         
         if hasPermission {
             accessibilityStatusView?.layer?.backgroundColor = NSColor.systemGreen.withAlphaComponent(0.15).cgColor
             accessibilityIcon?.image = NSImage(systemSymbolName: "checkmark.shield.fill", accessibilityDescription: nil)
             accessibilityIcon?.contentTintColor = .systemGreen
-            accessibilityLabel?.stringValue = "已就绪"
+            accessibilityLabel?.stringValue = loc.localized(.settingsAccessibilityReady)
             accessibilityLabel?.textColor = .systemGreen
             
             // 隐藏按钮
@@ -165,7 +182,7 @@ class SettingsWindowController: NSWindowController {
             accessibilityStatusView?.layer?.backgroundColor = NSColor.systemOrange.withAlphaComponent(0.15).cgColor
             accessibilityIcon?.image = NSImage(systemSymbolName: "exclamationmark.shield.fill", accessibilityDescription: nil)
             accessibilityIcon?.contentTintColor = .systemOrange
-            accessibilityLabel?.stringValue = "需要辅助功能权限"
+            accessibilityLabel?.stringValue = loc.localized(.settingsAccessibilityNeeded)
             accessibilityLabel?.textColor = .systemOrange
             
             // 显示按钮
@@ -196,6 +213,7 @@ class SettingsWindowController: NSWindowController {
     
     // MARK: - Header
     private func createHeaderView() -> NSView {
+        let loc = LocalizationManager.shared
         let view = NSView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.heightAnchor.constraint(equalToConstant: 80).isActive = true
@@ -208,14 +226,14 @@ class SettingsWindowController: NSWindowController {
         view.addSubview(iconView)
         
         // 标题
-        let titleLabel = NSTextField(labelWithString: "FinderClip")
+        let titleLabel = NSTextField(labelWithString: loc.localized(.appName))
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.font = NSFont.systemFont(ofSize: 20, weight: .semibold)
         titleLabel.textColor = .labelColor
         view.addSubview(titleLabel)
         
         // 副标题
-        let subtitleLabel = NSTextField(labelWithString: "为 Finder 带来真正的剪切粘贴")
+        let subtitleLabel = NSTextField(labelWithString: loc.localized(.appSubtitle))
         subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
         subtitleLabel.font = NSFont.systemFont(ofSize: 12)
         subtitleLabel.textColor = .secondaryLabelColor
@@ -269,6 +287,10 @@ class SettingsWindowController: NSWindowController {
             stack.bottomAnchor.constraint(equalTo: card.bottomAnchor, constant: -4)
         ])
         
+        // 语言设置
+        stack.addArrangedSubview(createLanguageSection())
+        stack.addArrangedSubview(createDivider())
+        
         // 超时设置
         stack.addArrangedSubview(createTimeoutSection())
         stack.addArrangedSubview(createDivider())
@@ -281,6 +303,7 @@ class SettingsWindowController: NSWindowController {
     
     // MARK: - Shortcut Hint
     private func createShortcutHint() -> NSView {
+        let loc = LocalizationManager.shared
         let container = NSView()
         container.translatesAutoresizingMaskIntoConstraints = false
         container.wantsLayer = true
@@ -301,9 +324,9 @@ class SettingsWindowController: NSWindowController {
             stack.centerYAnchor.constraint(equalTo: container.centerYAnchor)
         ])
         
-        stack.addArrangedSubview(createShortcutItem(key: "⌘+X", label: "剪切"))
-        stack.addArrangedSubview(createShortcutItem(key: "⌘+V", label: "粘贴移动"))
-        stack.addArrangedSubview(createShortcutItem(key: "Esc", label: "取消"))
+        stack.addArrangedSubview(createShortcutItem(key: "⌘+X", label: loc.localized(.shortcutCut)))
+        stack.addArrangedSubview(createShortcutItem(key: "⌘+V", label: loc.localized(.shortcutPaste)))
+        stack.addArrangedSubview(createShortcutItem(key: "Esc", label: loc.localized(.shortcutCancel)))
         
         return container
     }
@@ -328,8 +351,49 @@ class SettingsWindowController: NSWindowController {
         return stack
     }
     
+    // MARK: - Language Section
+    private func createLanguageSection() -> NSView {
+        let loc = LocalizationManager.shared
+        let container = NSView()
+        container.translatesAutoresizingMaskIntoConstraints = false
+        container.heightAnchor.constraint(equalToConstant: 48).isActive = true
+        
+        let iconView = createSettingIcon("globe", color: .secondaryLabelColor)
+        container.addSubview(iconView)
+        
+        let titleLabel = NSTextField(labelWithString: loc.localized(.settingsLanguage))
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        titleLabel.font = NSFont.systemFont(ofSize: 13)
+        titleLabel.textColor = .labelColor
+        container.addSubview(titleLabel)
+        
+        languagePopup = NSPopUpButton()
+        languagePopup.translatesAutoresizingMaskIntoConstraints = false
+        languagePopup.controlSize = .small
+        languagePopup.font = NSFont.systemFont(ofSize: 12)
+        languagePopup.addItems(withTitles: AppLanguage.allCases.map { $0.displayName })
+        languagePopup.target = self
+        languagePopup.action = #selector(languageSelectionChanged)
+        container.addSubview(languagePopup)
+        
+        NSLayoutConstraint.activate([
+            iconView.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 14),
+            iconView.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+            
+            titleLabel.leadingAnchor.constraint(equalTo: iconView.trailingAnchor, constant: 10),
+            titleLabel.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+            
+            languagePopup.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -14),
+            languagePopup.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+            languagePopup.widthAnchor.constraint(equalToConstant: 90)
+        ])
+        
+        return container
+    }
+    
     // MARK: - Timeout Section
     private func createTimeoutSection() -> NSView {
+        let loc = LocalizationManager.shared
         let container = NSView()
         container.translatesAutoresizingMaskIntoConstraints = false
         container.heightAnchor.constraint(equalToConstant: 48).isActive = true
@@ -337,7 +401,7 @@ class SettingsWindowController: NSWindowController {
         let iconView = createSettingIcon("clock", color: .secondaryLabelColor)
         container.addSubview(iconView)
         
-        let titleLabel = NSTextField(labelWithString: "剪切超时")
+        let titleLabel = NSTextField(labelWithString: loc.localized(.settingsCutTimeout))
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.font = NSFont.systemFont(ofSize: 13)
         titleLabel.textColor = .labelColor
@@ -347,7 +411,14 @@ class SettingsWindowController: NSWindowController {
         timeoutPopup.translatesAutoresizingMaskIntoConstraints = false
         timeoutPopup.controlSize = .small
         timeoutPopup.font = NSFont.systemFont(ofSize: 12)
-        timeoutPopup.addItems(withTitles: ["1 分钟", "3 分钟", "5 分钟", "10 分钟", "30 分钟", "永不"])
+        timeoutPopup.addItems(withTitles: [
+            loc.localized(.timeoutOneMinute),
+            loc.localized(.timeoutThreeMinutes),
+            loc.localized(.timeoutFiveMinutes),
+            loc.localized(.timeoutTenMinutes),
+            loc.localized(.timeoutThirtyMinutes),
+            loc.localized(.timeoutNever)
+        ])
         timeoutPopup.target = self
         timeoutPopup.action = #selector(timeoutChanged)
         container.addSubview(timeoutPopup)
@@ -384,6 +455,7 @@ class SettingsWindowController: NSWindowController {
     
     // MARK: - Notification Section
     private func createNotificationSection() -> NSView {
+        let loc = LocalizationManager.shared
         let stack = NSStackView()
         stack.orientation = .vertical
         stack.spacing = 0
@@ -393,7 +465,7 @@ class SettingsWindowController: NSWindowController {
         let notifRow = createIconSwitchRow(
             icon: "bell",
             iconColor: .secondaryLabelColor,
-            title: "显示通知"
+            title: loc.localized(.settingsShowNotification)
         ) { [weak self] sw in
             self?.notificationSwitch = sw
             sw.target = self
@@ -462,11 +534,12 @@ class SettingsWindowController: NSWindowController {
     
     // MARK: - Footer
     private func createFooterView() -> NSView {
+        let loc = LocalizationManager.shared
         let view = NSView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.heightAnchor.constraint(equalToConstant: 32).isActive = true
         
-        let doneButton = NSButton(title: "完成", target: self, action: #selector(closeWindow))
+        let doneButton = NSButton(title: loc.localized(.settingsDone), target: self, action: #selector(closeWindow))
         doneButton.translatesAutoresizingMaskIntoConstraints = false
         doneButton.bezelStyle = .rounded
         doneButton.controlSize = .regular
@@ -486,6 +559,13 @@ class SettingsWindowController: NSWindowController {
     private func loadSettings() {
         let settings = SettingsManager.shared
         
+        // 语言设置
+        let currentLang = LocalizationManager.shared.language
+        if let index = AppLanguage.allCases.firstIndex(of: currentLang) {
+            languagePopup.selectItem(at: index)
+        }
+        
+        // 超时设置
         switch settings.cutTimeout {
         case 60: timeoutPopup.selectItem(at: 0)
         case 180: timeoutPopup.selectItem(at: 1)
@@ -495,6 +575,7 @@ class SettingsWindowController: NSWindowController {
         default: timeoutPopup.selectItem(at: 5)
         }
         
+        // 通知设置
         notificationSwitch.state = settings.showNotifications ? .on : .off
     }
     
@@ -508,6 +589,18 @@ class SettingsWindowController: NSWindowController {
     
     @objc private func notificationChanged() {
         SettingsManager.shared.showNotifications = notificationSwitch.state == .on
+    }
+    
+    @objc private func languageSelectionChanged() {
+        let index = languagePopup.indexOfSelectedItem
+        if index >= 0 && index < AppLanguage.allCases.count {
+            LocalizationManager.shared.language = AppLanguage.allCases[index]
+        }
+    }
+    
+    @objc private func languageChanged() {
+        setupUI()
+        loadSettings()
     }
     
     @objc private func closeWindow() {

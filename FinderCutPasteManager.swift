@@ -204,7 +204,8 @@ class FinderCutPasteManager {
             
             // 显示通知
             Task { @MainActor in
-                self.showNotification("剪切模式", subtitle: "按 ⌘V 移动文件，按 Esc 取消")
+                let loc = LocalizationManager.shared
+                self.showNotification(loc.localized(.notificationCutSuccess), subtitle: "⌘V / Esc")
             }
             
             return nil  // 阻止原始事件
@@ -229,7 +230,8 @@ class FinderCutPasteManager {
             cutTimestamp = nil
             
             Task { @MainActor in
-                self.showNotification("已取消剪切", subtitle: "文件保持原位")
+                let loc = LocalizationManager.shared
+                self.showNotification(loc.localized(.notificationCutCancelled), subtitle: "")
             }
             
             return nil
@@ -242,7 +244,8 @@ class FinderCutPasteManager {
                 isCutMode = false
                 cutTimestamp = nil
                 Task { @MainActor in
-                    self.showNotification("剪切已超时", subtitle: "文件保持原位")
+                    let loc = LocalizationManager.shared
+                    self.showNotification(loc.localized(.notificationCutCancelled), subtitle: "")
                 }
             }
         }

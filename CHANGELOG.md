@@ -1,5 +1,31 @@
 # 更新日志 / Changelog
 
+## v1.0.3 (2024-12-30)
+
+🌐 **语言选择功能 / Language Selection Feature**
+
+### ✨ 新功能 / New Features
+
+- 🌐 **双语支持** - 添加中文/English语言选择功能 / Added Chinese/English language selection
+- 🎛️ **语言切换器** - 设置界面新增语言选择器 / New language selector in settings
+- 💾 **偏好保存** - 语言选择自动保存并持久化 / Language preference auto-saved and persisted
+- 🔄 **即时生效** - 切换语言后界面立即更新 / UI updates immediately after language switch
+- 🌍 **智能默认** - 根据系统语言自动选择初始语言 / Auto-detect system language for initial setup
+
+### 🎨 改进 / Improvements
+
+- 📐 **布局优化** - 优化设置窗口布局，防止文字重叠 / Optimized settings window layout to prevent text overlap
+- 🎯 **约束改进** - 改进UI约束确保各元素正确显示 / Improved UI constraints for proper element display
+- 📝 **本地化** - 所有UI元素完整本地化支持 / Full localization support for all UI elements
+
+### 🔧 技术细节 / Technical Details
+
+- 新增 `LocalizationManager.swift` 管理多语言
+- 更新所有界面组件支持动态语言切换
+- 添加语言变化通知机制
+
+---
+
 ## v1.0.1 (2024-12-09)
 
 🎉 **首个正式发布版本**

@@ -29,6 +29,7 @@ FinderClip is a lightweight macOS menu bar app that brings the familiar **⌘X**
 | 🔔 **Visual Feedback** | Clear notifications for cut/paste operations |
 | ⏱️ **Timeout Protection** | Customizable timeout (1-30 minutes) |
 | ⌨️ **Quick Cancel** | Press Esc to cancel cut operation |
+| 🌐 **Bilingual Support** | Support Chinese/English language switching |
 | 🚀 **Launch at Login** | Support for auto-start on boot |
 | ⚙️ **Settings Panel** | Beautiful preferences interface |
 | 🔄 **Auto Update** | Built-in Sparkle auto-update |
@@ -136,7 +137,7 @@ Mac-Finder-Clipboard/
 ./scripts/build.sh              # Build Debug version
 ./scripts/build.sh --run        # Build and run
 ./scripts/build.sh --release    # Build Release version
-./scripts/build.sh --release 1.0.2  # Release v1.0.2
+./scripts/build.sh --release 1.0.3  # Release v1.0.3
 ./scripts/build.sh --clean      # Clean build files
 ./scripts/build.sh --status     # Show project status
 ./scripts/build.sh --help       # Show help

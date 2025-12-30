@@ -65,6 +65,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 self?.updateAccessibilityStatus()
             }
         }
+        
+        // 监听语言变化
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(languageChanged),
+            name: .languageChanged,
+            object: nil
+        )
     }
     
     // 检查辅助功能权限
@@ -74,23 +82,24 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     func updateAccessibilityStatus() {
         let hasPermission = isAccessibilityEnabled
+        let loc = LocalizationManager.shared
         
         // 更新菜单栏图标
         if let button = statusItem?.button {
             if hasPermission {
                 button.image = NSImage(systemSymbolName: "scissors", accessibilityDescription: "FinderClip")
             } else {
-                button.image = NSImage(systemSymbolName: "exclamationmark.triangle.fill", accessibilityDescription: "需要权限")
+                button.image = NSImage(systemSymbolName: "exclamationmark.triangle.fill", accessibilityDescription: loc.localized(.menuGrantPermission))
             }
             button.image?.isTemplate = true
         }
         
         // 更新权限菜单项
         if hasPermission {
-            accessibilityMenuItem?.title = "✓ 已就绪"
+            accessibilityMenuItem?.title = loc.localized(.menuReady)
             accessibilityMenuItem?.isEnabled = false
         } else {
-            accessibilityMenuItem?.title = "⚠ 点击授予权限..."
+            accessibilityMenuItem?.title = loc.localized(.menuGrantPermission)
             accessibilityMenuItem?.isEnabled = true
         }
         
@@ -99,6 +108,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     func setupMenuBar() {
+        let loc = LocalizationManager.shared
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         
         if let button = statusItem?.button {
@@ -110,7 +120,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         // 权限状态（可点击）
         accessibilityMenuItem = NSMenuItem(
-            title: "检查权限中...",
+            title: loc.localized(.menuCheckingPermission),
             action: #selector(openAccessibilitySettings),
             keyEquivalent: ""
         )
@@ -121,7 +131,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         // 开机自启
         let launchItem = NSMenuItem(
-            title: "开机自动启动",
+            title: loc.localized(.menuLaunchAtLogin),
             action: #selector(toggleLaunchAtLogin),
             keyEquivalent: ""
         )
@@ -131,7 +141,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         // 设置
         menu.addItem(NSMenuItem(
-            title: "设置...",
+            title: loc.localized(.menuSettings),
             action: #selector(openSettings),
             keyEquivalent: ","
         ))
@@ -140,14 +150,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         // 关于
         menu.addItem(NSMenuItem(
-            title: "关于 FinderClip",
+            title: loc.localized(.menuAbout),
             action: #selector(showAbout),
             keyEquivalent: ""
         ))
         
         // 退出
         menu.addItem(NSMenuItem(
-            title: "退出",
+            title: loc.localized(.menuQuit),
             action: #selector(quit),
             keyEquivalent: "q"
         ))
@@ -171,18 +181,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     @objc func showAbout() {
+        let loc = LocalizationManager.shared
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0.0"
         
         let alert = NSAlert()
-        alert.messageText = "FinderClip"
+        alert.messageText = loc.localized(.appName)
         alert.alertStyle = .informational
-        alert.addButton(withTitle: "确定")
+        alert.addButton(withTitle: loc.localized(.aboutOK))
         
         // 创建自定义视图以支持可点击链接
         let contentView = NSView(frame: NSRect(x: 0, y: 0, width: 260, height: 160))
         
         // 版本号
-        let versionLabel = NSTextField(labelWithString: "版本 \(version)")
+        let versionLabel = NSTextField(labelWithString: "\(loc.localized(.aboutVersion)) \(version)")
         versionLabel.frame = NSRect(x: 0, y: 135, width: 260, height: 18)
         versionLabel.alignment = .center
         versionLabel.font = NSFont.systemFont(ofSize: 12)
@@ -190,14 +201,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         contentView.addSubview(versionLabel)
         
         // 描述
-        let descLabel = NSTextField(labelWithString: "为 Finder 提供直观的剪切粘贴体验")
+        let descLabel = NSTextField(labelWithString: loc.localized(.aboutDescription))
         descLabel.frame = NSRect(x: 0, y: 105, width: 260, height: 18)
         descLabel.alignment = .center
         descLabel.font = NSFont.systemFont(ofSize: 12)
         contentView.addSubview(descLabel)
         
         // 快捷键
-        let shortcutsLabel = NSTextField(labelWithString: "⌘X - 剪切文件\n⌘V - 移动文件\nEsc - 取消剪切")
+        let shortcutsLabel = NSTextField(labelWithString: loc.localized(.aboutShortcuts))
         shortcutsLabel.frame = NSRect(x: 0, y: 45, width: 260, height: 50)
         shortcutsLabel.alignment = .center
         shortcutsLabel.font = NSFont.systemFont(ofSize: 11)
@@ -252,5 +263,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     @objc func quit() {
         NSApplication.shared.terminate(nil)
+    }
+    
+    @objc func languageChanged() {
+        setupMenuBar()
+        updateAccessibilityStatus()
     }
 }
