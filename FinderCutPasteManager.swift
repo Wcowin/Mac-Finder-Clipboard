@@ -29,7 +29,7 @@ class FinderCutPasteManager {
     private var cutTimeout: TimeInterval {
         TimeInterval(SettingsManager.shared.cutTimeout)
     }
-    
+
     nonisolated(unsafe) private var eventTap: CFMachPort?
     private var runLoopSource: CFRunLoopSource?
     
@@ -55,14 +55,6 @@ class FinderCutPasteManager {
             name: .accessibilityStatusChanged,
             object: nil
         )
-        
-        // 监听系统辅助功能权限变化
-        DistributedNotificationCenter.default().addObserver(
-            self,
-            selector: #selector(handleSystemPermissionChanged),
-            name: NSNotification.Name("com.apple.accessibility.api"),
-            object: nil
-        )
     }
     
     @objc private func handlePermissionChanged(_ notification: Notification) {
@@ -79,39 +71,21 @@ class FinderCutPasteManager {
         }
     }
     
-    @objc private func handleSystemPermissionChanged(_ notification: Notification) {
-        guard isEnabled else { return }
-        
-        // 延迟检查，确保系统设置已生效
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-            guard let self = self else { return }
-            
-            let hasPermission = AXIsProcessTrusted()
-            print("[FinderClip] 系统权限变化，当前状态: \(hasPermission)")
-            
-            if hasPermission && self.eventTap == nil {
-                print("[FinderClip] 权限已授予，启动监听...")
-                Task { @MainActor in
-                    self.startMonitoring()
-                }
-            }
-        }
-    }
-    
+
     @objc private func handleAppActivated() {
         guard isEnabled else { return }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-            guard let self = self else { return }
-            
-            let hasPermission = AXIsProcessTrusted()
-            print("[FinderClip] 应用激活，权限状态: \(hasPermission)")
-            
-            if hasPermission && self.eventTap == nil {
-                print("[FinderClip] 检测到权限已授予，重启监听...")
-                Task { @MainActor in
-                    self.startMonitoring()
+        Task { @MainActor in
+            // Retry for up to ~4 seconds to allow System Settings to apply changes
+            for attempt in 0..<8 {
+                let hasPermission = AXIsProcessTrusted()
+                print("[FinderClip] 应用激活重检(\(attempt))，权限状态: \(hasPermission)")
+                if hasPermission {
+                    if self.eventTap == nil {
+                        self.startMonitoring()
+                    }
+                    break
                 }
+                try? await Task.sleep(nanoseconds: 500_000_000) // 0.5s
             }
         }
     }
@@ -127,36 +101,56 @@ class FinderCutPasteManager {
     
     func startMonitoring() {
         guard eventTap == nil else { return }
-        
+
         print("[FinderClip] 启动监听...")
-        
+
         let eventMask = (1 << CGEventType.keyDown.rawValue)
-        
-        guard let tap = CGEvent.tapCreate(
-            tap: .cgSessionEventTap,
-            place: .headInsertEventTap,
-            options: .defaultTap,
-            eventsOfInterest: CGEventMask(eventMask),
-            callback: { (proxy, type, event, refcon) -> Unmanaged<CGEvent>? in
-                guard let refcon = refcon else {
-                    return Unmanaged.passUnretained(event)
+
+        func attemptCreateTap() -> CFMachPort? {
+            return CGEvent.tapCreate(
+                tap: .cgSessionEventTap,
+                place: .headInsertEventTap,
+                options: .defaultTap,
+                eventsOfInterest: CGEventMask(eventMask),
+                callback: { (proxy, type, event, refcon) -> Unmanaged<CGEvent>? in
+                    guard let refcon = refcon else {
+                        return Unmanaged.passUnretained(event)
+                    }
+                    let manager = Unmanaged<FinderCutPasteManager>.fromOpaque(refcon).takeUnretainedValue()
+                    return manager.handleEventTap(proxy: proxy, type: type, event: event)
+                },
+                userInfo: Unmanaged.passUnretained(self).toOpaque()
+            )
+        }
+
+        guard let tap = attemptCreateTap() else {
+            print("[FinderClip] Event Tap 创建失败（需要辅助功能权限或等待系统应用更改）")
+            // Prompt once if not trusted
+            if !AXIsProcessTrusted() {
+                showPermissionAlert()
+            }
+            // Retry once after a short delay in case System Settings just applied the toggle
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { [weak self] in
+                guard let self = self, self.eventTap == nil else { return }
+                if let retryTap = attemptCreateTap() {
+                    self.eventTap = retryTap
+                    self.runLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, retryTap, 0)
+                    CFRunLoopAddSource(CFRunLoopGetMain(), self.runLoopSource, .commonModes)
+                    CGEvent.tapEnable(tap: retryTap, enable: true)
+                    print("[FinderClip] 监听已启动(重试)")
+                } else {
+                    print("[FinderClip] 监听仍无法启动，等待用户在系统设置中授权或重启应用后重试")
                 }
-                let manager = Unmanaged<FinderCutPasteManager>.fromOpaque(refcon).takeUnretainedValue()
-                return manager.handleEventTap(proxy: proxy, type: type, event: event)
-            },
-            userInfo: Unmanaged.passUnretained(self).toOpaque()
-        ) else {
-            print("[FinderClip] ⚠️ Event Tap 创建失败（需要辅助功能权限）")
-            showPermissionAlert()
+            }
             return
         }
-        
+
         eventTap = tap
         runLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, tap, 0)
         CFRunLoopAddSource(CFRunLoopGetMain(), runLoopSource, .commonModes)
         CGEvent.tapEnable(tap: tap, enable: true)
-        
-        print("[FinderClip] ✅ 监听已启动")
+
+        print("[FinderClip] 监听已启动")
     }
     
     func stopMonitoring() {
@@ -312,14 +306,17 @@ class FinderCutPasteManager {
     }
     
     func openSystemPreferences() {
-        // 先触发系统原生权限弹窗
-        let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue(): true] as CFDictionary
-        AXIsProcessTrustedWithOptions(options)
-        
-        // 同时打开系统设置页面（方便用户手动勾选）
+        // Trigger the native permission prompt if not already trusted
+        if !AXIsProcessTrusted() {
+            let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue(): true] as CFDictionary
+            AXIsProcessTrustedWithOptions(options)
+        }
+
+        // Open System Settings
         let url = "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility"
         if let settingsURL = URL(string: url) {
             NSWorkspace.shared.open(settingsURL)
         }
     }
 }
+
