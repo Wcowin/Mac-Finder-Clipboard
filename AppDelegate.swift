@@ -16,6 +16,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var finderCutManager: FinderCutPasteManager?
     var accessibilityMenuItem: NSMenuItem?
     
+    // 缓存上次的权限状态，避免闪烁
+    private var lastKnownPermissionState: Bool?
+    
     // Sparkle 更新控制器
     let updaterController = SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
     
@@ -53,14 +56,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // 初始化 Finder 剪切管理器
         finderCutManager = FinderCutPasteManager()
         
-        // 默认启用功能
-        Task { @MainActor in
-            self.finderCutManager?.isEnabled = true
-            self.updateAccessibilityStatus()
+        // 延迟检查权限状态，避免启动时的假阴性
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+            self?.updateAccessibilityStatus()
+            
+            // 默认启用功能
+            Task { @MainActor in
+                self?.finderCutManager?.isEnabled = true
+            }
         }
         
-        // 定时检查权限状态
-        Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
+        // 定时检查权限状态（降低频率以减少不必要的检查）
+        Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { [weak self] _ in
             DispatchQueue.main.async {
                 self?.updateAccessibilityStatus()
             }
@@ -83,6 +90,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func updateAccessibilityStatus() {
         let hasPermission = isAccessibilityEnabled
         let loc = LocalizationManager.shared
+        
+        // 如果状态没有变化且已经是有权限，就不更新UI（避免不必要的闪烁）
+        if let lastState = lastKnownPermissionState, lastState == hasPermission && hasPermission {
+            return
+        }
+        
+        lastKnownPermissionState = hasPermission
+        print("[FinderClip] 权限状态更新: \(hasPermission)")
         
         // 更新菜单栏图标
         if let button = statusItem?.button {
